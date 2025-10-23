@@ -114,9 +114,9 @@ def supprime(avl, valeur):
         if avl.feuille():
             return None
         elif avl.fils_droit is None:
-            return val.fils_gauche
+            return avl.fils_gauche
         elif avl.fils_gauche is None:
-            return val.fils_droit
+            return avl.fils_droit
         else:
             succ = successeur(avl)
             avl.nom = succ.nom
@@ -127,13 +127,11 @@ def supprime(avl, valeur):
 
 
 avl = Avl(0)
-for i in range(-1, -10, -1):
+for i in range(1, 50):
     avl = insert(avl, i)
 affiche(avl)
 input()
-#print(dico_hauteur(avl))
-#print(valeur_successeur(-7))
-for i in range(-1, -10, -1):
+for i in range(1, 50,):
     print(i)
     avl = supprime(avl, i)
     affiche(avl)
