@@ -7,11 +7,8 @@ class Avl:
         avl.fils_droit = None
         avl.hauteur = 1
 
-    
-
-    
-
-    
+    def feuille(self):
+        return self.fils_gauche is None and self.fils_droit is None
 
 def liste_aretes(avl):
     liste = []
@@ -28,31 +25,21 @@ def affiche(avl):
     graph.edges(liste_aretes(avl))
     graph.render(view=True)
         
-def rotation_gauche_gauche(avl):
+def rotation_gauche(avl):
     b = avl.fils_gauche
     avl.fils_gauche = b.fils_droit
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
+    maj(avl)
     b.fils_droit = avl
-    b.hauteur = 1 + max(hauteur(b.fils_droit), hauteur(b.fils_gauche))
+    maj(b)
     return b
 
-def rotation_droite_droite(avl):
+def rotation_droite(avl):
     c = avl.fils_droit
     avl.fils_droit = c.fils_gauche
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
+    maj(avl)
     c.fils_gauche = avl
-    c.hauteur = 1 + max(hauteur(c.fils_droit), hauteur(c.fils_gauche))
+    maj(c)
     return c
-
-def rotation_droite_gauche(avl):
-    avl.fils_gauche = rotation_droite_droite(avl.fils_gauche)
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
-    return rotation_gauche_gauche(avl)
-
-def rotation_gauche_droite(avl):
-    avl.fils_droit = rotation_gauche_gauche(avl.fils_droit)
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
-    return rotation_droite_droite(avl)
 
 def hauteur(avl):
     return 0 if avl is None else avl.hauteur
@@ -65,77 +52,92 @@ def dico_hauteur(avl):
     dico.update(dico_hauteur(avl.fils_droit))
     return dico
 
+def balance(avl):
+    return hauteur(avl.fils_droit) - hauteur(avl.fils_gauche)
+
+def maj(avl):
+    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
+
+def equilibre(avl):
+    if balance(avl) == -2:
+        if balance(avl.fils_gauche) > 0:
+            avl.fils_gauche = rotation_droite(avl.fils_gauche)
+        avl = rotation_gauche(avl)
+    if balance(avl) == 2:
+        if balance(avl.fils_droit) <0:
+            avl.fils_droit = rotation_gauche(avl.fils_droit)
+        avl = rotation_droite(avl)
+    maj(avl)
+    return avl
+
 def insert(avl, valeur):
+    if avl is None:
+        return Avl(valeur)
     if valeur == avl.nom:
         return avl
     if valeur < avl.nom:
-        if avl.fils_gauche is None:
-            avl.fils_gauche = Avl(valeur)
-        else:
-            avl.fils_gauche = insert(avl.fils_gauche,valeur)
+        avl.fils_gauche = insert(avl.fils_gauche, valeur)
     else:
-        if avl.fils_droit is None:
-            avl.fils_droit = Avl(valeur)
+        avl.fils_droit = insert(avl.fils_droit, valeur)
+    maj(avl)
+    return equilibre(avl)
+
+def recherche(avl, valeur):
+    "renvoie le sous arbre ayant valeur pour racine. Si il n'existe pas renvoie None"
+    if avl is None:
+        return avl
+    if valeur == avl.nom:
+        return avl
+    if valeur < avl.nom:
+        return recherche(avl.fils_gauche, valeur)
+    else:
+        return recherche(avl.fils_droit, valeur)
+
+def successeur(avl):
+    "renvoie le successeur inorder de la racine, None si il n'y a pas de fils droit"
+    if avl.fils_droit is None:
+        return None
+    succ = avl.fils_droit
+    while succ.fils_gauche is not None:
+        succ = succ.fils_gauche
+    return succ
+
+
+def supprime(avl, valeur):
+    if avl is None:
+        return None
+    if valeur < avl.nom:
+        avl.fils_gauche = supprime(avl.fils_gauche, valeur)
+    elif valeur > avl.nom:
+        avl.fils_droit = supprime(avl.fils_droit, valeur)
+    else:
+        if avl.feuille():
+            return None
+        elif avl.fils_droit is None:
+            return val.fils_gauche
+        elif avl.fils_gauche is None:
+            return val.fils_droit
         else:
-            avl.fils_droit = insert(avl.fils_droit, valeur)
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
+            succ = successeur(avl)
+            avl.nom = succ.nom
+            avl.fils_droit = supprime(avl.fils_droit, avl.nom)
+    maj(avl)
+ 
+    return equilibre(avl)
 
-    balance = hauteur(avl.fils_droit) - hauteur(avl.fils_gauche)
-    if balance == -2:
-        balance_gauche = hauteur(avl.fils_gauche.fils_droit) - hauteur(avl.fils_gauche.fils_gauche)
-        if balance_gauche < 0:
-            avl = rotation_gauche_gauche(avl)
-        else:
-            avl = rotation_droite_gauche(avl)
-    if balance == 2:
-        balance_droite = hauteur(avl.fils_droit.fils_droit) - hauteur(avl.fils_droit.fils_gauche)
-        if balance_droite > 0:
-            avl = rotation_droite_droite(avl)
-        else:
-            avl = rotation_gauche_droite(avl)
 
-    avl.hauteur = 1 + max(hauteur(avl.fils_droit), hauteur(avl.fils_gauche))
-    return avl
-    
-
-"""
-a = Avl("a")
-b = Avl("b")
-c = Avl("c")
-d = Avl("d")
-e = Avl("e")
-a.fils_gauche = b
-a.fils_droit = c
-c.fils_gauche = d
-c.fils_droit = e
-
-#affiche(a)
-#affiche(rotation_gauche_gauche(a))
-affiche(rotation_droite_droite(a))
-
-a50 = Avl(50)
-a20 = Avl(20)
-a25 = Avl(25)
-a10 = Avl(10)
-a30 = Avl(30)
-a40 = Avl(40)
-a50 = Avl(50)
-a70 = Avl(70)
-a50.fils_gauche = a20
-a50.fils_droit = a70
-a20.fils_gauche = a10
-a20.fils_droit = a30
-a30.fils_gauche = a25
-a30.fils_droit = a40
-avl = a50
-avl = rotation_droite_gauche(avl)
-avl = rotation_gauche_droite(avl)
-#avl = rotation_gauche_gauche(avl)
-#avl = rotation_droite_droite(avl)
-"""
 avl = Avl(0)
 for i in range(-1, -10, -1):
     avl = insert(avl, i)
 affiche(avl)
-print(dico_hauteur(avl))
+input()
+#print(dico_hauteur(avl))
+#print(valeur_successeur(-7))
+for i in range(-1, -10, -1):
+    print(i)
+    avl = supprime(avl, i)
+    affiche(avl)
+    input()
+
+
 
