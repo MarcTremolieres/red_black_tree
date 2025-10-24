@@ -17,8 +17,18 @@ void infixe(struct Noeud * root) {
     if (root->droit != NULL) {
         infixe(root->droit);
     }
+}
+
+void clean(struct Noeud * root) {
+    if (root->gauche != NULL) {
+        clean(root->gauche);
+    }
+    if (root->droit != NULL) {
+        clean(root->droit);
+    }
     free(root);
 }
+
 
 int hauteur(struct Noeud * noeud) {
     return (noeud == NULL ? 0: noeud->hauteur);
@@ -62,6 +72,7 @@ struct Noeud * rotation_gauche(struct Noeud * noeud) {
 
 struct Noeud * equilibre(struct Noeud * noeud) {
     int b = balance(noeud);
+    printf("noeud %i hauteur %i balance %i \n", noeud->val, hauteur(noeud), b);
     if (b == -2) {
         if (balance(noeud->gauche) > 0) {
             noeud->gauche = rotation_droite(noeud->gauche);
@@ -97,7 +108,13 @@ struct Noeud * insere(struct Noeud * root, int val) {
         root->droit = insere(root->droit, val);
     }
     maj(root);
-//    return equilibre(root);
+    printf("equilibrage de %i\n", root->val);
+    infixe(root);
+    printf("\n");
+    root = equilibre(root);
+    printf("equilibré : \n");
+    infixe(root);
+    printf("\n");
     return root;
 }
 
@@ -114,24 +131,16 @@ int main() {
     printf("\n");
     */
     struct Noeud * root = (struct Noeud *) malloc(sizeof(struct Noeud));
-    root->val = -5;
+    root->val = 0;
     root->gauche = NULL;
     root->droit = NULL;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 1; i < 8; i++) {
         root = insere(root, i);
+        printf("balance %i\n", balance(root));
 //        root = insere(root, -i);
     }
     infixe(root);
     printf("\n");
-    struct Noeud * root2 = (struct Noeud *) malloc(sizeof(struct Noeud));
-    root2->val = -5;
-    root2->gauche = NULL;
-    root2->droit = NULL;
-    for (int i = 0; i < 2; i++) {
-        root2 = insere(root2, i);
-    }
-    root2 = rotation_droite(root2);
-    infixe(root2);
-    printf("\n");
+    clean(root);
     return 0;
 }
