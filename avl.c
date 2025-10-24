@@ -33,6 +33,54 @@ void maj(struct Noeud * noeud) {
     }
 }
 
+
+int balance(struct Noeud * noeud) {
+    return hauteur(noeud->droit) - hauteur(noeud->gauche);
+}
+
+
+struct Noeud * rotation_droite(struct Noeud * noeud) {
+    if (noeud->droit == NULL) return noeud;
+    struct Noeud * tmp = noeud->droit;
+    noeud->droit = tmp->gauche;
+    maj(noeud);
+    tmp->gauche = noeud;
+    maj(tmp);
+    return tmp;
+}
+
+struct Noeud * rotation_gauche(struct Noeud * noeud) {
+    if (noeud->gauche == NULL) return noeud;
+    struct Noeud * tmp = noeud->gauche;
+    noeud->gauche = tmp->droit;
+    maj(noeud);
+    tmp->droit = noeud;
+    maj(tmp);
+    return tmp;
+}
+
+
+struct Noeud * equilibre(struct Noeud * noeud) {
+    int b = balance(noeud);
+    if (b == -2) {
+        if (balance(noeud->gauche) > 0) {
+            noeud->gauche = rotation_droite(noeud->gauche);
+            maj(noeud->gauche);
+        }
+        noeud = rotation_gauche(noeud);
+        maj(noeud);
+    }
+    if (b == 2) {
+        if (balance(noeud->droit) < 0) {
+            noeud->droit = rotation_gauche(noeud->droit);
+            maj(noeud->droit);
+        }
+        noeud = rotation_droite(noeud);
+        maj(noeud);
+    }
+    return noeud;
+}
+
 struct Noeud * insere(struct Noeud * root, int val) {
     if (root == NULL) {
         struct Noeud * feuille = (struct Noeud *) malloc(sizeof(struct Noeud));
@@ -49,15 +97,8 @@ struct Noeud * insere(struct Noeud * root, int val) {
         root->droit = insere(root->droit, val);
     }
     maj(root);
+//    return equilibre(root);
     return root;
-}
-
-struct Noeud * rotation_droite(struct Noeud * noeud) {
-    if (noeud->droit == NULL) return noeud;
-    struct Noeud * tmp = noeud->droit;
-    noeud->droit = tmp->gauche;
-    tmp->gauche = noeud;
-    return tmp;
 }
 
 int main() {
@@ -76,11 +117,21 @@ int main() {
     root->val = -5;
     root->gauche = NULL;
     root->droit = NULL;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 2; i++) {
         root = insere(root, i);
-        root = insere(root, -i);
+//        root = insere(root, -i);
     }
     infixe(root);
+    printf("\n");
+    struct Noeud * root2 = (struct Noeud *) malloc(sizeof(struct Noeud));
+    root2->val = -5;
+    root2->gauche = NULL;
+    root2->droit = NULL;
+    for (int i = 0; i < 2; i++) {
+        root2 = insere(root2, i);
+    }
+    root2 = rotation_droite(root2);
+    infixe(root2);
     printf("\n");
     return 0;
 }
