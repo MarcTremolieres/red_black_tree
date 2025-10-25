@@ -118,18 +118,43 @@ struct Noeud * insere(struct Noeud * root, int val) {
     return root;
 }
 
-int main() {
-    /*
-    struct Noeud n1 = {1, NULL, NULL};
-    struct Noeud n6 = {6, NULL, NULL};
-    struct Noeud n2 = {2, &n1, &n6};
-    struct Noeud n5 = {5, NULL, NULL};
-    struct Noeud n4 = {4, NULL, &n5};
-    struct Noeud n3 = {3, &n2, &n4};
+int successeur(struct Noeud * root) {
+    struct Noeud * noeud = root;
+    while (noeud->gauche != NULL) noeud = noeud->gauche;
+    return noeud->val;
+}
 
-    infixe(&n3);
-    printf("\n");
-    */
+struct Noeud * supprime(struct Noeud * root, int val) {
+    if (val < root->val) {
+        root->gauche = supprime(root->gauche, val);
+        maj(root);
+        return equilibre(root);
+    }
+    else {
+        if (val > root->val) {
+        root->droit = supprime(root->droit, val);
+        maj(root);
+        return equilibre(root);
+        }   
+        else {
+            //root->val = val : Le noeud à supprimer
+            if ((root->gauche == NULL) & (root->droit == NULL)) {
+                free(root);
+                return NULL;      //feuille
+            }
+            if (root->gauche == NULL) return root->droit;   //un seul fils droit
+            if (root->droit == NULL) return root->gauche;   //un seul fils gauche
+            //cas général
+            int succ = successeur(root);
+            root->val = succ;
+            root->droit = supprime(root->droit, succ);
+            maj(root);
+            return equilibre(root);
+        }
+    }
+}
+
+int main() {
     struct Noeud * root = (struct Noeud *) malloc(sizeof(struct Noeud));
     root->val = 0;
     root->gauche = NULL;
@@ -137,10 +162,18 @@ int main() {
     for (int i = 1; i < 8; i++) {
         root = insere(root, i);
         printf("balance %i\n", balance(root));
-//        root = insere(root, -i);
     }
     infixe(root);
     printf("\n");
+    printf("balance %i\n", balance(root));
+    root = supprime(root, 0);
+    infixe(root);
+    printf("\n");
+    printf("balance %i\n", balance(root));
+    root = supprime(root, 1);
+    infixe(root);
+    printf("\n");
+    printf("balance %i\n", balance(root));
     clean(root);
     return 0;
 }
