@@ -19,7 +19,7 @@ void infixe(struct Noeud * root) {
     }
 }
 
-void clean(struct Noeud * root) {
+struct Noeud * clean(struct Noeud * root) {
     if (root->gauche != NULL) {
         clean(root->gauche);
     }
@@ -27,6 +27,7 @@ void clean(struct Noeud * root) {
         clean(root->droit);
     }
     free(root);
+    return NULL;
 }
 
 
@@ -72,7 +73,7 @@ struct Noeud * rotation_gauche(struct Noeud * noeud) {
 
 struct Noeud * equilibre(struct Noeud * noeud) {
     int b = balance(noeud);
-    printf("noeud %i hauteur %i balance %i \n", noeud->val, hauteur(noeud), b);
+    //printf("noeud %i hauteur %i balance %i \n", noeud->val, hauteur(noeud), b);
     if (b == -2) {
         if (balance(noeud->gauche) > 0) {
             noeud->gauche = rotation_droite(noeud->gauche);
@@ -108,13 +109,7 @@ struct Noeud * insere(struct Noeud * root, int val) {
         root->droit = insere(root->droit, val);
     }
     maj(root);
-    printf("equilibrage de %i\n", root->val);
-    infixe(root);
-    printf("\n");
     root = equilibre(root);
-    printf("equilibré : \n");
-    infixe(root);
-    printf("\n");
     return root;
 }
 
@@ -127,32 +122,57 @@ int successeur(struct Noeud * root) {
 struct Noeud * supprime(struct Noeud * root, int val) {
     if (val < root->val) {
         root->gauche = supprime(root->gauche, val);
+        printf("supprime à gauche root = %d\n", root->val);
+        infixe(root);
+        printf("\n");
         maj(root);
         return equilibre(root);
     }
     else {
         if (val > root->val) {
         root->droit = supprime(root->droit, val);
+        printf("supprime à droite root = %d\n", root->val);
+
+        infixe(root);
+            printf("\n");
         maj(root);
         return equilibre(root);
         }   
         else {
             //root->val = val : Le noeud à supprimer
+            printf("supprime  %d\n", root->val);
+
             if ((root->gauche == NULL) & (root->droit == NULL)) {
+                printf("feuille\n");
                 free(root);
                 return NULL;      //feuille
             }
-            if (root->gauche == NULL) return root->droit;   //un seul fils droit
-            if (root->droit == NULL) return root->gauche;   //un seul fils gauche
+            if (root->gauche == NULL) {
+                printf("pas de gauche\n");
+                struct Noeud * tmp = root->droit;
+                free(root);
+                return tmp;
+            }   //un seul fils droit
+            if (root->droit == NULL) {
+                printf("pas de droit\n");
+                struct Noeud * tmp = root->gauche;
+                free(root);
+                return tmp;
+            }    //un seul fils gauche
             //cas général
+            printf("cas general\n");
             int succ = successeur(root);
             root->val = succ;
             root->droit = supprime(root->droit, succ);
+            printf("succ = %d\n", succ);
+            infixe(root);
+            printf("\n");
             maj(root);
             return equilibre(root);
+            }
         }
     }
-}
+
 
 int main() {
     struct Noeud * root = (struct Noeud *) malloc(sizeof(struct Noeud));
@@ -161,19 +181,18 @@ int main() {
     root->droit = NULL;
     for (int i = 1; i < 8; i++) {
         root = insere(root, i);
-        printf("balance %i\n", balance(root));
     }
     infixe(root);
-    printf("\n");
     printf("balance %i\n", balance(root));
-    root = supprime(root, 0);
-    infixe(root);
-    printf("\n");
-    printf("balance %i\n", balance(root));
-    root = supprime(root, 1);
-    infixe(root);
-    printf("\n");
-    printf("balance %i\n", balance(root));
+    for (int i = 1; i < 2; i++) {
+        printf("i = %i\n", i);
+        root = supprime(root, i);
+        infixe(root);
+        printf("\n");
+        printf("balance %i\n", balance(root));
+    }
+    
     clean(root);
+    //free(root);
     return 0;
 }
