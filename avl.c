@@ -74,7 +74,6 @@ struct Noeud * rotation_gauche(struct Noeud * noeud) {
 
 struct Noeud * equilibre(struct Noeud * noeud) {
     int b = balance(noeud);
-    //printf("noeud %i hauteur %i balance %i \n", noeud->val, hauteur(noeud), b);
     if (b == -2) {
         if (balance(noeud->gauche) > 0) {
             noeud->gauche = rotation_droite(noeud->gauche);
@@ -123,52 +122,36 @@ int successeur(struct Noeud * root) {
 struct Noeud * supprime(struct Noeud * root, int val) {
     if (val < root->val) {
         root->gauche = supprime(root->gauche, val);
-        printf("supprime à gauche root = %d\n", root->val);
-        infixe(root);
-        printf("\n");
         maj(root);
         return equilibre(root);
     }
     else {
         if (val > root->val) {
         root->droit = supprime(root->droit, val);
-        printf("supprime à droite root = %d\n", root->val);
-
-        infixe(root);
-            printf("\n");
         maj(root);
         return equilibre(root);
         }   
         else {
             //root->val = val : Le noeud à supprimer
-            printf("supprime  %d\n", root->val);
-
             if ((root->gauche == NULL) & (root->droit == NULL)) {
-                printf("feuille\n");
                 free(root);
                 return NULL;      //feuille
             }
             if (root->gauche == NULL) {
-                printf("pas de gauche\n");
                 struct Noeud * tmp = root->droit;
                 free(root);
                 return tmp;
             }   //un seul fils droit
             if (root->droit == NULL) {
-                printf("pas de droit\n");
                 struct Noeud * tmp = root->gauche;
                 free(root);
                 return tmp;
             }    //un seul fils gauche
             //cas général
-            printf("cas general\n");
             int succ = successeur(root);
-            printf("succ = %d\n", succ);
 
             root->val = succ;
             root->droit = supprime(root->droit, succ);
-            infixe(root);
-            printf("\n");
             maj(root);
             return equilibre(root);
             }
