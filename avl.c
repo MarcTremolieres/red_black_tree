@@ -20,6 +20,7 @@ void infixe(struct Noeud * root) {
 }
 
 struct Noeud * clean(struct Noeud * root) {
+    if (root == NULL) return NULL;
     if (root->gauche != NULL) {
         clean(root->gauche);
     }
@@ -114,7 +115,7 @@ struct Noeud * insere(struct Noeud * root, int val) {
 }
 
 int successeur(struct Noeud * root) {
-    struct Noeud * noeud = root;
+    struct Noeud * noeud = root->droit;
     while (noeud->gauche != NULL) noeud = noeud->gauche;
     return noeud->val;
 }
@@ -162,9 +163,10 @@ struct Noeud * supprime(struct Noeud * root, int val) {
             //cas général
             printf("cas general\n");
             int succ = successeur(root);
+            printf("succ = %d\n", succ);
+
             root->val = succ;
             root->droit = supprime(root->droit, succ);
-            printf("succ = %d\n", succ);
             infixe(root);
             printf("\n");
             maj(root);
@@ -184,14 +186,14 @@ int main() {
     }
     infixe(root);
     printf("balance %i\n", balance(root));
-    for (int i = 1; i < 2; i++) {
+    for (int i = 1; i < 8; i++) {
         printf("i = %i\n", i);
         root = supprime(root, i);
         infixe(root);
         printf("\n");
         printf("balance %i\n", balance(root));
     }
-    
+    root = supprime(root, 0);
     clean(root);
     //free(root);
     return 0;
