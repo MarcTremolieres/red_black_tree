@@ -158,16 +158,28 @@ struct Noeud * supprime(struct Noeud * root, int val) {
         }
     }
 
+void export(struct Noeud * avl) {
+    if (avl->gauche != NULL) {
+        printf("%i,%i\n", avl->val, avl->gauche->val);
+        export(avl->gauche);
+    }
+    if (avl->droit != NULL) {
+        printf("%i,%i\n", avl->val, avl->droit->val);
+        export(avl->droit);
+    }
+    
+}
 
 int main() {
     struct Noeud * root = (struct Noeud *) malloc(sizeof(struct Noeud));
     root->val = 0;
     root->gauche = NULL;
     root->droit = NULL;
-    for (int i = 1; i < 8; i++) {
+    for (int i = 1; i < 80; i++) {
         root = insere(root, i);
     }
-    infixe(root);
+    export(root);
+/*
     printf("balance %i\n", balance(root));
     for (int i = 1; i < 8; i++) {
         printf("i = %i\n", i);
@@ -177,7 +189,7 @@ int main() {
         printf("balance %i\n", balance(root));
     }
     root = supprime(root, 0);
+*/
     clean(root);
-    //free(root);
     return 0;
 }
