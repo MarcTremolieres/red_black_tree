@@ -1,3 +1,3 @@
 Python implementation of red black tree , graphics with graphviz<br>
 Python implementation of AVL trees<br>
-Start of C implementation of AVL trees
+C implementation of AVL trees

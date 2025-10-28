@@ -9,4 +9,5 @@ for ligne in f.readlines():
 f.close()
 avl.render(view=True)
 
+print(ord('0'))
 
