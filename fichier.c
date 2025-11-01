@@ -51,7 +51,7 @@ int main() {
         //printf("%c\n", i + 48);
     }
     fclose(sortie);
-    int i = 123987;
+    int i = 0;
     int n = mylog2(i);
     char conversion[n + 1];
     conversion[n] = 0;
